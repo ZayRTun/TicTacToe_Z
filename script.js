@@ -22,6 +22,7 @@ $(document).ready(function() {
     //console.log(origBoard);
     for (var i = 0; i < cells.length; i++) {
       cells[i].innerText = '';
+      cells[i].style.backgroundColor = '';
     }
   }
 
@@ -29,9 +30,31 @@ $(document).ready(function() {
     var sqId = data.target;
     sqId.innerText = huPlayer;
     origBoard[sqId.id] = huPlayer;
-    //console.log(origBoard);
-
+    let gameWon = checkWin(origBoard, huPlayer);
+    if (gameWon) gameOver(gameWon);
   });
+
+  function checkWin(board, player) {
+    let plays = board.reduce((a, e, i) => (e === player) ? a.concat(i):a,[]);
+    let gameWon = null
+    for (let [index, win] of winCombos.entries()) {
+      if (win.every(elem => plays.indexOf(elem) > -1)) {
+        gameWon = {index: index, player: player};
+        break;
+      }
+    }
+    return gameWon;
+  }
+
+  function gameOver(game) {
+    for (let index of winCombos[game.index]) {
+      document.getElementById(index).style.backgroundColor = game.player == huPlayer ? 'blue' : 'red';
+    }
+    // for (var i = 0; i < cells.length; i++) {
+    //   cells[i]
+    // }
+    console.log(game.player)
+  }
 
   
 });//end of jquery doc.ready.func..  
