@@ -1,5 +1,6 @@
 $(document).ready(function() {
   var origBoard;
+  var switchBtn = false;
   const huPlayer = "O";
   const aiPlayer = "X";
   const winCombos = [
@@ -18,6 +19,7 @@ $(document).ready(function() {
   $('#replay').click(replay);
 
   function replay() {
+    switchBtn = false;
     origBoard = Array.from(Array(9).keys());
     //console.log(origBoard);
     for (var i = 0; i < cells.length; i++) {
@@ -26,20 +28,53 @@ $(document).ready(function() {
     }
   }
 
+//Human's turn
   $('.cell').click(function(data) {
-    var sqId = data.target;
-    sqId.innerText = huPlayer;
-    origBoard[sqId.id] = huPlayer;
-    let gameWon = checkWin(origBoard, huPlayer);
-    if (gameWon) gameOver(gameWon);
+    if (switchBtn === false) {
+      var sqId = data.target;
+      sqId.innerText = huPlayer;
+      origBoard[sqId.id] = huPlayer;
+      let gameWon = checkWin(origBoard, huPlayer);
+      if (gameWon) {
+        gameOver(gameWon);
+      } else {
+        turn(origBoard, aiPlayer);
+      }
+    } else {
+      console.log('Restart the Game');
+    }
   });
 
+//AI's turn
+  function turn(board, player) {
+    let huPlays = board.reduce((a, e, i) => (e === huPlayer) ? a.concat(i) : a, []);
+    let playsRemain = board.reduce((a, e, i) => (e !== huPlayer) ? a.concat(i) : a, []); 
+    console.log(playsRemain);
+    console.log(plays.length);
+    if (huPlays.length === 1) {
+      
+    }
+
+
+
+    // let huPlays = [];
+    // for (var i = 0; i < board.length; i++) {
+    //   if (board[i] === huPlayer) {
+    //     huPlays.push(board[i]);
+    //   }
+    // }
+    //console.log(board);
+  }
+
   function checkWin(board, player) {
-    let plays = board.reduce((a, e, i) => (e === player) ? a.concat(i):a,[]);
+    let plays = board.reduce((a, e, i) => (e === player) ? a.concat(i) : a,[]);
     let gameWon = null
     for (let [index, win] of winCombos.entries()) {
+      
       if (win.every(elem => plays.indexOf(elem) > -1)) {
         gameWon = {index: index, player: player};
+        //console.log(win);
+        //console.log(gameWon.index);
         break;
       }
     }
@@ -53,7 +88,8 @@ $(document).ready(function() {
     // for (var i = 0; i < cells.length; i++) {
     //   cells[i]
     // }
-    console.log(game.player)
+    switchBtn = true;
+    //console.log(game.player)
   }
 
   
