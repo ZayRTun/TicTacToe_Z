@@ -1,96 +1,183 @@
-$(document).ready(function() {
-  var origBoard;
-  var switchBtn = false;
-  const huPlayer = "O";
-  const aiPlayer = "X";
-  const winCombos = [
-    [0,1,2],
-    [3,4,5],
-    [6,7,8],
-    [0,3,6],
-    [1,4,7],
-    [2,5,8],
-    [0,4,8],
-    [6,4,2]
-  ]
-  const cells = document.querySelectorAll(".cell");
-  replay();
+var origBoard;
+let huPlayer = 'O';
+let aiPlayer = 'X';
+const winCombos = [
+  [0,1,2],
+  [3,4,5],
+  [6,7,8],
+  [0,3,6],
+  [1,4,7],
+  [2,5,8],
+  [0,4,8],
+  [2,4,6]
+];
+var onOff = false;
+const cells = document.querySelectorAll('.cell');
+//console.log(cells);
+//console.log(cells.length);
+startGame();
+//playerSelection();
 
-  $('#replay').click(replay);
-
-  function replay() {
-    switchBtn = false;
-    origBoard = Array.from(Array(9).keys());
-    //console.log(origBoard);
-    for (var i = 0; i < cells.length; i++) {
-      cells[i].innerText = '';
-      cells[i].style.backgroundColor = '';
+function playerSelection() {
+  if (onOff === false) {
+    let plSelect = prompt('Play as "X" or "O" ?');
+    if (plSelect === '' || plSelect.toUpperCase() === 'O') {
+      huPlayer = "O";
+      aiPlayer = "X";
+    } 
+    else if (plSelect.toUpperCase() === 'X') {
+      huPlayer = "X";
+      aiPlayer = "O";
     }
+    else if (plSelect.toUpperCase() !== '' || plSelect.toUpperCase() !== 'X'|| plSelect.toUpperCase() !== 'O') {
+    alert('Invalid user input!');
+    playerSelection();
+     }
+  } else {
+    console.log("End or Restart Game to select player!")
   }
+  document.getElementById('huPl').innerText = ' '+'"'+huPlayer+'"';
+  document.getElementById('aiPl').innerText = ' '+'"'+aiPlayer+'"';
+}
 
-//Human's turn
-  $('.cell').click(function(data) {
-    if (switchBtn === false) {
-      var sqId = data.target;
-      sqId.innerText = huPlayer;
-      origBoard[sqId.id] = huPlayer;
-      let gameWon = checkWin(origBoard, huPlayer);
-      if (gameWon) {
-        gameOver(gameWon);
-      } else {
-        turn(origBoard, aiPlayer);
-      }
-    } else {
-      console.log('Restart the Game');
-    }
-  });
-
-//AI's turn
-  function turn(board, player) {
-    let huPlays = board.reduce((a, e, i) => (e === huPlayer) ? a.concat(i) : a, []);
-    let playsRemain = board.reduce((a, e, i) => (e !== huPlayer) ? a.concat(i) : a, []); 
-    console.log(playsRemain);
-    console.log(plays.length);
-    if (huPlays.length === 1) {
-      
-    }
-
-
-
-    // let huPlays = [];
-    // for (var i = 0; i < board.length; i++) {
-    //   if (board[i] === huPlayer) {
-    //     huPlays.push(board[i]);
-    //   }
-    // }
-    //console.log(board);
+function startGame() {
+  onOff = false;
+  document.getElementById('huPl').innerText = ' '+'"'+huPlayer+'"';
+  document.getElementById('aiPl').innerText = ' '+'"'+aiPlayer+'"';
+  document.querySelector(".endgame").style.display = "none";
+  origBoard = Array.from(Array(9).keys());
+  for (var i = 0; i < cells.length; i++) {
+    cells[i].innerText = '';
+    cells[i].style.removeProperty('background-color');
+    cells[i].addEventListener('click', turnClick, false);
   }
+}
 
-  function checkWin(board, player) {
-    let plays = board.reduce((a, e, i) => (e === player) ? a.concat(i) : a,[]);
-    let gameWon = null
+function turnClick(square) {
+  //console.log(square.target.id);
+  
+  if (typeof origBoard[square.target.id] == 'number') {
+    onOff = true;
+    turn(square.target.id, huPlayer);
+    let gameWon = checkWin(origBoard, huPlayer);
+    if (gameWon) {
+      onOff = false;
+      gameOver(gameWon);
+    }
+    else if (!checkTie()) {
+      turn(bestSpot(), aiPlayer);
+    } 
+  }
+  //console.log(onOff);
+}
+
+function turn(squareId, player) {
+  origBoard[squareId] = player;
+  document.getElementById(squareId).innerText = player;
+  let gameWon = checkWin(origBoard, player);
+  if (gameWon) gameOver(gameWon);
+}
+
+function checkWin(board,player) {
+  let plays = board.reduce((a, e, i) => 
+    (e === player) ? a.concat(i) : a, []);
+    let gameWon = null;
     for (let [index, win] of winCombos.entries()) {
-      
       if (win.every(elem => plays.indexOf(elem) > -1)) {
         gameWon = {index: index, player: player};
-        //console.log(win);
-        //console.log(gameWon.index);
         break;
       }
     }
     return gameWon;
-  }
+}
 
-  function gameOver(game) {
-    for (let index of winCombos[game.index]) {
-      document.getElementById(index).style.backgroundColor = game.player == huPlayer ? 'blue' : 'red';
+function gameOver(gameWon) {
+  for (let index of winCombos[gameWon.index]) {
+    document.getElementById(index).style.backgroundColor = 
+    gameWon.player == huPlayer ? "green" : "yellow";
+  }
+  for (var i = 0; i < cells.length; i++) {
+    cells[i].removeEventListener('click', turnClick, false);   
+  }
+  declareWinner(gameWon.player == huPlayer ? "You win!" : "You lose!");
+  onOff = false;
+  //console.log(onOff);
+}
+
+function declareWinner(who) {
+  document.querySelector(".endgame").style.display = "block";
+  document.querySelector(".endgame .text").innerText = who;
+}
+
+function emptySquares() {
+  return origBoard.filter(s => typeof s == 'number');
+}
+
+function bestSpot() {
+  return minimax(origBoard, aiPlayer).index;
+}
+
+function checkTie() {
+  if (emptySquares().length == 0) {
+    onOff = false;
+    for (var i = 0; i < cells.length; i++) {
+      cells[i].style.backgroundColor = "blue";
+      cells[i].removeEventListener('click', turnClick, false);
     }
-    // for (var i = 0; i < cells.length; i++) {
-    //   cells[i]
-    // }
-    switchBtn = true;
-    //console.log(game.player)
+    declareWinner("Tie Game!");
+    return true;
+    
+    //console.log(onOff);
+  }
+  return false;
+}
+
+function minimax(newBoard, player) {
+  var availSpots = emptySquares(newBoard);
+  if (checkWin(newBoard, player)) {
+    return {score: -10};
+  } else if (checkWin(newBoard, aiPlayer)) {
+    return {score: 10};
+  } else if (availSpots.length === 0) {
+    return {score: 0};
+  }
+  var moves = [];
+  for (var i = 0; i < availSpots.length; i++) {
+    var move = {};
+    move.index = newBoard[availSpots[i]];
+    newBoard[availSpots[i]] = player;
+
+    if (player == aiPlayer) {
+      var result = minimax(newBoard, huPlayer);
+      move.score = result.score;
+    } else {
+      var result = minimax(newBoard, aiPlayer);
+      move.score = result.score;
+    }
+
+    newBoard[availSpots[i]] = move.index;
+
+    moves.push(move);
   }
 
-  
-});//end of jquery doc.ready.func..  
+  var bestMove;
+  if (player === aiPlayer) {
+    var bestScore = -10000;
+    for (var i = 0; i < moves.length; i++) {
+      if (moves[i].score > bestScore) {
+        bestScore = moves[i].score;
+        bestMove = i; 
+      }
+    }
+  } else {
+    var bestScore = 10000;
+    for (var i = 0; i < moves.length; i++) {
+      if (moves[i].score < bestScore) {
+        bestScore = moves[i].score;
+        bestMove = i; 
+      }
+    }
+  }
+
+  return moves[bestMove];
+}

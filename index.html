@@ -4,36 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <link rel="stylesheet" href="style.css">
   <title>TicTacToe</title>
 </head>
 <body>
   <div class="container">
-    <table>
-      <tr>
-        <td class="cell" id="0"></td>
-        <td class="cell" id="1"></td>
-        <td class="cell" id="2"></td>
-      </tr>
-      
-      <tr>
-        <td class="cell" id="3"></td>
-        <td class="cell" id="4"></td>
-        <td class="cell" id="5"></td>
-      </tr>
-      <tr>
-        <td class="cell" id="6"></td>
-        <td class="cell" id="7"></td>
-        <td class="cell" id="8"></td>
-      </tr>
-    </table>
-    <div class="gameover">
-      <div class="text">test</div>
-    </div>
-    <button id='replay'>Start Game</button>
-  </div>
-
+    <header>
+      <h2>FreeCodeCamp TicTacToe</h2>
+      <ul>
+        <li>Your Playing :<span id="huPl"></span></li>
+        <li>Com Playing :<span id="aiPl"></span></li>
+      </ul>
+    </header>
+          <table>
+                  <tr>
+                      <td class="cell" id="0"></td>
+                      <td class="cell" id="1"></td>
+                      <td class="cell" id="2"></td>
+                  </tr>
+                  <tr>
+                      <td class="cell" id="3"></td>
+                      <td class="cell" id="4"></td>
+                      <td class="cell" id="5"></td>
+                  </tr>
+                  <tr>
+                      <td class="cell" id="6"></td>
+                      <td class="cell" id="7"></td>
+                      <td class="cell" id="8"></td>
+                  </tr>
+          </table>
+          <div class="endgame">
+              <div class="text"></div>
+          </div>
+        <div class="btn">
+          <button onClick="startGame()">Restart</button>
+          <button onClick="playerSelection()">Player Selection</button>
+        </div>
+      </div>
   <script src="script.js"></script>
 </body>
 </html>
